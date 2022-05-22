@@ -126,7 +126,9 @@ while True:
                 triangleRightPointX, triangleRightPointY = \
                 circleOutLineX, SCREEN_CENTER_Y
 
-            # Start drawing the diagram
+            # Now we start drawing the diagram
+            
+            # math information
             screen.fill(BLACK)
             render_math_info(
                 round(radiansAngle, 4),
@@ -139,6 +141,7 @@ while True:
                 round(secValue, 4),
                 (5, 2), SMALL_FONT_SIZE
             )
+            
             # circle and guide lines
             pygame.draw.circle(screen, WHITE, SCREEN_CENTER, CIRCLE_RADIUS, 1)
             pygame.draw.line(screen, GRAY, SCREEN_CENTER, (SCREEN_CENTER_X + CIRCLE_RADIUS, SCREEN_CENTER_Y))
