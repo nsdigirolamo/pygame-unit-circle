@@ -15,23 +15,22 @@ PINK = 255, 85, 255
 YELLOW = 255, 255, 85
 ORANGE = 255, 170, 85
 
-SCREEN_SIZE = width, height = 720, 480
-SCREEN_CENTER_X = width / 2
-SCREEN_CENTER_Y = height / 2
-SCREEN_CENTER = SCREEN_CENTER_X, SCREEN_CENTER_Y
+SCREEN_SIZE = WIDTH, HEIGHT = 720, 480
+SCREEN_CENTER = SCREEN_CENTER_X, SCREEN_CENTER_Y = WIDTH / 2, HEIGHT / 2
 
-CIRCLE_RADIUS = 150
+CIRCLE_RADIUS = WIDTH * 0.2
+LARGE_FONT_SIZE = int(WIDTH * 0.03)
+SMALL_FONT_SIZE = int(WIDTH * 0.02)
 
 pygame.init()
 screen = pygame.display.set_mode(SCREEN_SIZE)
 pygame.display.set_caption("Unit Circle Toy")
-fontSize = 24
-font = pygame.font.SysFont("Noto Sans", fontSize)
-smallFontSize = 16
-smallFont = pygame.font.SysFont("Noto Sans", smallFontSize)
+largeFont = pygame.font.SysFont("Noto Sans", LARGE_FONT_SIZE)
+smallFont = pygame.font.SysFont("Noto Sans", SMALL_FONT_SIZE)
 
 
 def render_math_info(radians, degrees, sin_val, cos_val, tan_val, cot_val, csc_val, sec_val, position, font_size):
+
     lines = [
         "Radians: " + str(radians),
         "Degrees: " + str(degrees),
@@ -67,7 +66,7 @@ def render_math_info(radians, degrees, sin_val, cos_val, tan_val, cot_val, csc_v
             textcolor = YELLOW
         # Ripped this line from a helper function from this website
         # https://cmsdk.com/python/rendering-text-with-multiple-lines-in-pygame.html
-        screen.blit(font.render(l, True, textcolor), (position[0], position[1] + font_size * i))
+        screen.blit(largeFont.render(l, True, textcolor), (position[0], position[1] + 1.6 * font_size * i))
 
 
 def midpoint(point1, point2):
@@ -104,6 +103,7 @@ while True:
             mousePos = pygame.mouse.get_pos()
             mousePosX = mousePos[0]
             mousePosY = mousePos[1]
+
             # Subtract pi and take absolute value of atan2's result to get an angle between 0 and 2pi. This might not
             # necessarily be the best way to do this but it works properly so I'm leaving it as is.
             radiansAngle = abs(atan2(SCREEN_CENTER_Y - mousePosY, SCREEN_CENTER_X - mousePosX) - pi)
@@ -119,13 +119,12 @@ while True:
             # the vertexes of the triangle. mouseRadiansAngle is the angle of the hypotenuse. triangleRightPoint will
             # be the vertex of the triangle's 90-degree angle
 
-            circleOutLineX = SCREEN_CENTER_X + (CIRCLE_RADIUS * cosValue)
-            circleOutLineY = SCREEN_CENTER_Y - (CIRCLE_RADIUS * sinValue)
-            circleOutLinePos = circleOutLineX, circleOutLineY
-
-            triangleRightPointX = circleOutLineX
-            triangleRightPointY = SCREEN_CENTER_Y
-            triangleRightPoint = triangleRightPointX, triangleRightPointY
+            circleOutLinePos = \
+                circleOutLineX, circleOutLineY = \
+                SCREEN_CENTER_X + (CIRCLE_RADIUS * cosValue), SCREEN_CENTER_Y - (CIRCLE_RADIUS * sinValue)
+            triangleRightPoint = \
+                triangleRightPointX, triangleRightPointY = \
+                circleOutLineX, SCREEN_CENTER_Y
 
             # Start drawing the diagram
             screen.fill(BLACK)
@@ -138,7 +137,7 @@ while True:
                 round(cotValue, 4),
                 round(cscValue, 4),
                 round(secValue, 4),
-                (5, 2), fontSize
+                (5, 2), SMALL_FONT_SIZE
             )
             # circle and guide lines
             pygame.draw.circle(screen, WHITE, SCREEN_CENTER, CIRCLE_RADIUS, 1)
@@ -149,40 +148,48 @@ while True:
 
             # cosine line (adjacent face of triangle)
             pygame.draw.line(screen, RED, SCREEN_CENTER, triangleRightPoint)
-            screen.blit(smallFont.render(str(round(cosValue, 4)), True, RED), midpoint(triangleRightPoint, SCREEN_CENTER))
+            screen.blit(smallFont.render(str(round(cosValue, 4)), True, RED),
+                        midpoint(triangleRightPoint, SCREEN_CENTER))
 
             # sine line (opposite face of triangle)
             pygame.draw.line(screen, GREEN, triangleRightPoint, circleOutLinePos)
-            screen.blit(smallFont.render(str(round(sinValue, 4)), True, GREEN), midpoint(triangleRightPoint, circleOutLinePos))
+            screen.blit(smallFont.render(str(round(sinValue, 4)), True, GREEN),
+                        midpoint(triangleRightPoint, circleOutLinePos))
 
             # tangent line
-            tangentEndPointX = SCREEN_CENTER_X + CIRCLE_RADIUS * sec(radiansAngle)
-            tangentEndPointY = SCREEN_CENTER_Y
-            tangentEndPoint = tangentEndPointX, tangentEndPointY
+            tangentEndPoint = \
+                tangentEndPointX, tangentEndPointY = \
+                SCREEN_CENTER_X + CIRCLE_RADIUS * sec(radiansAngle), SCREEN_CENTER_Y
             pygame.draw.line(screen, BLUE, circleOutLinePos, tangentEndPoint)
             if degrees != 90 and degrees != 270:
-                screen.blit(smallFont.render(str(round(tanValue, 4)), True, BLUE), midpoint(circleOutLinePos, tangentEndPoint))
+                screen.blit(smallFont.render(str(round(tanValue, 4)), True, BLUE),
+                            midpoint(circleOutLinePos, tangentEndPoint))
 
             # cotangent line
-            cotangentEndPointX = SCREEN_CENTER_X
-            cotangentEndPointY = SCREEN_CENTER_Y - CIRCLE_RADIUS * csc(radiansAngle)
-            cotangentEndPoint = cotangentEndPointX, cotangentEndPointY
+            cotangentEndPoint = \
+                cotangentEndPointX, cotangentEndPointY = \
+                SCREEN_CENTER_X, SCREEN_CENTER_Y - CIRCLE_RADIUS * csc(radiansAngle)
             pygame.draw.line(screen, PINK, circleOutLinePos, cotangentEndPoint)
             if degrees != 0 and degrees != 180:
-                screen.blit(smallFont.render(str(round(cotValue, 4)), True, PINK), midpoint(circleOutLinePos, cotangentEndPoint))
+                screen.blit(smallFont.render(str(round(cotValue, 4)), True, PINK),
+                            midpoint(circleOutLinePos, cotangentEndPoint))
 
             # cosecant line
             cosecantEndPoint = cotangentEndPoint
             pygame.draw.line(screen, ORANGE, SCREEN_CENTER, cosecantEndPoint)
             if degrees != 0 and degrees != 180:
-                screen.blit(smallFont.render(str(round(cscValue, 4)), True, ORANGE), midpoint(SCREEN_CENTER, cosecantEndPoint))
+                screen.blit(smallFont.render(str(round(cscValue, 4)), True, ORANGE),
+                            midpoint(SCREEN_CENTER, cosecantEndPoint))
 
             # secant line
             secantEndPoint = tangentEndPoint
             # lower the line by 2 pixels so the red cosine line is still visible
-            pygame.draw.line(screen, YELLOW, (SCREEN_CENTER_X, SCREEN_CENTER_Y + 2), (secantEndPoint[0], secantEndPoint[1] + 2))
+            raisedCenter = SCREEN_CENTER_X, SCREEN_CENTER_Y + 2
+            raisedSecantEndPoint = secantEndPoint[0], secantEndPoint[1] + 2
+            pygame.draw.line(screen, YELLOW, raisedCenter, raisedSecantEndPoint)
             if degrees != 90 and degrees != 270:
-                screen.blit(smallFont.render(str(round(secValue, 4)), True, YELLOW), midpoint(SCREEN_CENTER, secantEndPoint))
+                screen.blit(smallFont.render(str(round(secValue, 4)), True, YELLOW),
+                            midpoint(SCREEN_CENTER, secantEndPoint))
 
             # This line is the hypotenuse of the right triangle that follows the mouse's position
             # It is drawn last, so it can be visible over everything else
